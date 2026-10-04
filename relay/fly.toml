@@ -1,0 +1,19 @@
+# fly.toml — sp-ai-bridge relay
+#
+# IMPORTANT: auto_stop_machines is OFF on purpose. The relay holds
+# in-memory queues and long-poll requests; sleeping the machine would
+# break it. min_machines_running = 1 keeps one instance always up.
+
+app = "sp-ai-bridge-relay"
+primary_region = "fra"
+
+[env]
+  PORT = "3877"
+
+[http_service]
+  internal_port = 3877
+  force_https = true
+  auto_stop_machines = "off"
+  auto_start_machines = true
+  min_machines_running = 1
+  processes = ["app"]
