@@ -41,9 +41,9 @@ Works on desktop and mobile.
 |---|---|---|
 | `ping` | — | `{ok, ts, version}` |
 | `list_tasks` | — | active tasks (slim projection) |
-| `add_task` | `title`*, `notes?`, `projectId?`, `tagIds?`, `dueDay?` (YYYY-MM-DD), `timeEstimate?` (ms) | `{id}` |
+| `add_task` | `title`*, `notes?`, `projectId?`, `tagIds?`, `dueDay?` (YYYY-MM-DD), `dueWithTime?` (epoch ms — shows in Schedule view), `timeEstimate?` (ms) | `{id}` |
 | `complete_task` | `id`*, `isDone?` (default true) | `{id, isDone}` |
-| `update_task` | `id`*, `title?`, `notes?`, `dueDay?`, `timeEstimate?` | `{id, updated[]}` |
+| `update_task` | `id`*, `title?`, `notes?`, `dueDay?`, `dueWithTime?` (epoch ms, `null` clears), `timeEstimate?` | `{id, updated[]}` |
 | `delete_task` | `id`*, `confirm:true`* | `{id, deleted}` |
 | `list_projects` | — | `[{id, title}]` |
 | `list_tags` | — | `[{id, title}]` |

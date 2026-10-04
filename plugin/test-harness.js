@@ -76,6 +76,7 @@ async function main() {
         projectId: d.projectId || null,
         tagIds: d.tagIds || [],
         dueDay: d.dueDay || null,
+        dueWithTime: d.dueWithTime || null,
       });
       return id;
     },
@@ -128,10 +129,26 @@ async function main() {
   }
 
   let r = await aiCmd('ping', {});
-  assert(r.ok === true && r.result && r.result.version === '0.2.0', 'ping round-trip');
+  assert(r.ok === true && r.result && r.result.version === '0.2.1', 'ping round-trip');
 
   r = await aiCmd('add_task', { title: 'Buy milk', notes: '2%' });
   assert(r.ok === true && r.result && r.result.id, 'add_task round-trip, id=' + (r.result && r.result.id));
+
+  const DWT = 1791741600000; // fixed epoch ms
+  r = await aiCmd('add_task', { title: 'Timed task', dueDay: '2026-10-10', dueWithTime: DWT });
+  assert(
+    r.ok === true && r.result && r.result.id &&
+      tasks.find((t) => t.id === r.result.id).dueWithTime === DWT,
+    'add_task with dueWithTime -> stored on task'
+  );
+  r = await aiCmd('add_task', { title: 'Bad time', dueWithTime: 'not-a-number' });
+  assert(r.ok === false, 'add_task with invalid dueWithTime -> clean error');
+  r = await aiCmd('update_task', { id: tasks[tasks.length - 1].id, dueWithTime: null });
+  assert(
+    r.ok === true && tasks[tasks.length - 1].dueWithTime === null,
+    'update_task can clear dueWithTime'
+  );
+  await aiCmd('delete_task', { id: tasks[tasks.length - 1].id, confirm: true }); // clean up
 
   r = await aiCmd('list_tasks', {});
   assert(
