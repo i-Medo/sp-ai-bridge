@@ -19,6 +19,8 @@
  *   POST /api/poll      {token}                       -> {cmd:{id,name,args}|null}  (long-poll, ~25s)
  *   POST /api/result    {token,id,ok,result?,error?}  -> {ok:true, delivered:bool}
  *   POST /api/cmd       {token,name,args?,timeoutMs?} -> {ok:true,result} | {ok:false,error}
+ * On every endpoint the token may alternatively be sent as
+ * `Authorization: Bearer <token>` (body.token takes precedence if both).
  *   GET  /api/health                                  -> {ok:true,...}
  */
 
@@ -198,7 +200,7 @@ const server = http.createServer(async (req, res) => {
       res.writeHead(204, {
         'access-control-allow-origin': '*',
         'access-control-allow-methods': 'GET, POST, OPTIONS',
-        'access-control-allow-headers': 'content-type',
+        'access-control-allow-headers': 'content-type, authorization',
       });
       return res.end();
     }
@@ -208,12 +210,17 @@ const server = http.createServer(async (req, res) => {
     if (req.method !== 'POST') return sendJson(res, 405, { ok: false, error: 'method_not_allowed' });
 
     const body = await readBody(req);
+    // Token arrives in the JSON body (phone plugin) or as a Bearer header
+    // (server-side clients using a securely stored credential). Body wins if both.
+    const authH = req.headers['authorization'] || '';
+    const bearer = authH.toLowerCase().startsWith('bearer ') ? authH.slice(7).trim() : '';
+    const token = body.token || bearer || '';
     const needsToken = ['/api/register', '/api/poll', '/api/result', '/api/cmd'].includes(url.pathname);
-    if (needsToken && !tokenOk(body.token)) {
+    if (needsToken && !tokenOk(token)) {
       return sendJson(res, 401, { ok: false, error: 'bad_token' });
     }
-    const ns = needsToken ? nsFor(body.token) : null;
-    console.log(new Date().toISOString(), req.method, url.pathname, 'tok=' + shortTok(body.token));
+    const ns = needsToken ? nsFor(token) : null;
+    console.log(new Date().toISOString(), req.method, url.pathname, 'tok=' + shortTok(token));
 
     switch (url.pathname) {
       case '/api/register':
