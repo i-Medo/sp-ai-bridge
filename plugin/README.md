@@ -9,12 +9,12 @@ long-polls the [relay server](../relay/) via the documented
 - `manifest.json` — plugin manifest (permissions are per-method names)
 - `plugin.js` — the plugin (poll loop, command dispatch, pairing)
 
-## Before packaging (required)
+## Packaging
 
-1. In `plugin.js`, set `DEFAULT_RELAY_URL` to your relay, e.g.
-   `https://sp-bridge-xyz.fly.dev` (no trailing slash).
-2. In `manifest.json`, set `allowedHosts` to the relay's **exact hostname**
-   (no wildcards, port ignored — enforced fail-closed by the host).
+The production relay (`https://sp-ai-bridge-production.up.railway.app`) is
+already configured in `plugin.js` (`DEFAULT_RELAY_URL`) and `manifest.json`
+(`allowedHosts`). To point at your own relay, change both to its exact
+hostname (no wildcards — enforced fail-closed by the host).
 
 ## Package & install
 

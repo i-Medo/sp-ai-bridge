@@ -39,14 +39,16 @@ within 60s — fast fail, no waiting), `timeout`, `plugin_error`.
 - Plugin side: the relay hostname must be listed in the plugin manifest's
   `allowedHosts` (exact match, no wildcards) with the `"http"` permission.
 
-## Deploy (fly.io)
+## Deploy (Railway)
 
-```bash
-fly launch --no-deploy
-fly deploy
-```
+1. Railway dashboard → New Project → Deploy from GitHub repo → select this repo.
+2. Service settings → set **Root Directory** to `relay` (the Dockerfile lives there).
+3. Deploy. Railway provides HTTPS automatically and injects `PORT` (the
+   server reads it from the environment).
 
 Single instance is fine (state is in-memory). No database needed.
+`auto_stop`-style sleeping must stay off — the relay holds in-memory queues
+and long-poll requests.
 
 ## Test
 

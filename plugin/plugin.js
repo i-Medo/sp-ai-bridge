@@ -30,8 +30,8 @@
 (function () {
   'use strict';
 
-  // === CONFIG: set before packaging ===
-  var DEFAULT_RELAY_URL = 'https://REPLACE_WITH_YOUR_RELAY_HOST'; // no trailing slash
+  // === CONFIG ===
+  var DEFAULT_RELAY_URL = 'https://sp-ai-bridge-production.up.railway.app'; // no trailing slash
 
   var SECRET_KEY = 'spAiBridge.relayToken';
   var URL_KEY = 'spAiBridge.relayUrl';
