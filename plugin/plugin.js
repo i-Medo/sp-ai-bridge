@@ -17,9 +17,9 @@
  * Supported commands (Phase 3):
  *   ping            -> {ok, ts, version}
  *   list_tasks      -> [{id,title,isDone,projectId,tagIds,dueDay,notes}]
- *   add_task        {title, notes?, projectId?, tagIds?, dueDay?, timeEstimate?} -> {id}
+ *   add_task        {title, notes?, projectId?, tagIds?, dueDay?, dueWithTime?, timeEstimate?} -> {id}
  *   complete_task   {id, isDone?} -> {id, isDone}
- *   update_task     {id, title?, notes?, dueDay?, timeEstimate?} -> {id, updated[]}
+ *   update_task     {id, title?, notes?, dueDay?, dueWithTime?, timeEstimate?} -> {id, updated[]}
  *   delete_task     {id, confirm:true} -> {id, deleted}   (confirm required)
  *   list_projects   -> [{id,title}]
  *   list_tags       -> [{id,title}]
@@ -37,7 +37,7 @@
   var URL_KEY = 'spAiBridge.relayUrl';
   var RETRY_MS = 5000;
   var MAX_RETRY_MS = 60000;
-  var VERSION = '0.2.0';
+  var VERSION = '0.2.1';
 
   var stopped = false;
   var status = 'init';
@@ -176,6 +176,11 @@
       if (args.projectId) data.projectId = String(args.projectId);
       if (Array.isArray(args.tagIds)) data.tagIds = args.tagIds.map(String);
       if (args.dueDay) data.dueDay = String(args.dueDay); // YYYY-MM-DD
+      if (args.dueWithTime !== undefined && args.dueWithTime !== null) {
+        var dwt = Number(args.dueWithTime);
+        if (!Number.isFinite(dwt) || dwt <= 0) throw new Error('dueWithTime_invalid');
+        data.dueWithTime = Math.round(dwt); // epoch ms, shows in Schedule view
+      }
       if (typeof args.timeEstimate === 'number') data.timeEstimate = args.timeEstimate;
       var id = await PluginAPI.addTask(data);
       return { id: id };
@@ -210,6 +215,15 @@
       }
       if (args.notes !== undefined) updates.notes = String(args.notes);
       if (args.dueDay !== undefined) updates.dueDay = args.dueDay ? String(args.dueDay) : null;
+      if (args.dueWithTime !== undefined) {
+        if (args.dueWithTime === null) {
+          updates.dueWithTime = null;
+        } else {
+          var dwtU = Number(args.dueWithTime);
+          if (!Number.isFinite(dwtU) || dwtU <= 0) throw new Error('dueWithTime_invalid');
+          updates.dueWithTime = Math.round(dwtU);
+        }
+      }
       if (typeof args.timeEstimate === 'number') updates.timeEstimate = args.timeEstimate;
       if (Object.keys(updates).length === 0) throw new Error('nothing_to_update');
       await PluginAPI.updateTask(String(args.id), updates);
