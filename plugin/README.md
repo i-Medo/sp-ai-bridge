@@ -42,6 +42,11 @@ Works on desktop and mobile.
 | `ping` | — | `{ok, ts, version}` |
 | `list_tasks` | — | active tasks (slim projection) |
 | `add_task` | `title`*, `notes?`, `projectId?`, `tagIds?`, `dueDay?` (YYYY-MM-DD), `dueWithTime?` (epoch ms — shows in Schedule view), `timeEstimate?` (ms) | `{id}` |
+
+> **Scheduling rule (from the app's data model): `dueDay` and `dueWithTime`
+> are mutually exclusive — never set both.** For a timed entry pass only
+> `dueWithTime` (epoch ms, e.g. `1791132000000`); for an all-day entry pass
+> only `dueDay`. Setting both confuses the Schedule/Timeline view.
 | `complete_task` | `id`*, `isDone?` (default true) | `{id, isDone}` |
 | `update_task` | `id`*, `title?`, `notes?`, `dueDay?`, `dueWithTime?` (epoch ms, `null` clears), `timeEstimate?` | `{id, updated[]}` |
 | `delete_task` | `id`*, `confirm:true`* | `{id, deleted}` |
